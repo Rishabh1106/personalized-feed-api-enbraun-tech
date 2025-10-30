@@ -1,0 +1,4 @@
+data.sqlite
+demos/
+node_modules/
+dist/
