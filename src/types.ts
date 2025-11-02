@@ -3,7 +3,7 @@ export type FeedItem = {
   title: string;
   ts: number; // unix ms
   popularity: number; // integer
-  category: string;
+  segment: string;
   region: string;
 };
 

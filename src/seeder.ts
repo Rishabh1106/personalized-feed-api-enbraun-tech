@@ -18,31 +18,23 @@ async function seed() {
   await initSchema();
   console.log("Initialized DB schema (ensured tables)");
   const regions = ["us", "eu", "in", "asia", "latam"];
-  const categories = [
-    "sports",
-    "current_affairs",
-    "technology",
-    "entertainment",
-    "top10",
-    "general",
-  ];
+  const categories = ["sports", "current_affairs", "top10", "hot", "popular"];
 
-  const total = 5;
-  // const total = 5000;
+  const total = 5000;
   console.log("Seeding", total, "posts...");
   const now = nowMs();
-  const batchSize = 5;
-  // const batchSize = 500;
+
+  const batchSize = 500;
   for (let i = 0; i < total; i += batchSize) {
     const batch: any[] = [];
     for (let j = i; j < Math.min(i + batchSize, total); j++) {
       // const id = uuidv4();
       const region = pick(regions);
-      const category = pick(categories);
+      const segment = pick(categories);
       const ts = now - randInt(0, 60 * 24 * 60 * 60 * 1000);
       const popularity = randInt(0, 10000);
-      const title = `${category.toUpperCase()} Post ${j}`;
-      batch.push({ title, ts, popularity, category, region });
+      const title = `${segment.toUpperCase()} Post ${j}`;
+      batch.push({ title, ts, popularity, segment, region });
     }
     await knex("feed_items").insert(batch);
   }
@@ -83,7 +75,7 @@ async function seed() {
       const ageDays = Math.max(0, (now - it.ts) / (1000 * 60 * 60 * 24));
       const recencyScore = Math.exp(-ageDays / 7);
       const popScore = it.popularity / maxPop;
-      const prefWeight = pref[it.category] ?? 0.1;
+      const prefWeight = pref[it.segment] ?? 0.1;
       const personalized_score = 0.5 * recencyScore + 0.35 * popScore + 0.15 * prefWeight;
       rows.push({
         user_id: u.id,
@@ -91,7 +83,7 @@ async function seed() {
         personalized_score,
         ts: it.ts,
         title: it.title,
-        category: it.category,
+        segment: it.segment,
         region: it.region,
         popularity: it.popularity,
       });

@@ -11,7 +11,8 @@ export const getFeed = async (req: Request, res: Response) => {
   const cursor = req.query.cursor ? String(req.query.cursor) : undefined;
   const limit = Math.min(Number(req.query.limit) || 20, 100); // Cap at 100
   const region = req.query.region ? String(req.query.region) : undefined;
-  const segment = req.query.segment === "global" ? "global" : "personalized";
+  const segment = req.query.segment ? String(req.query.segment) : undefined;
+  const category = req.query.category === "global" ? "global" : "personalized";
 
   if (!userId) {
     res.status(400).json({ error: "userId is required" });
@@ -24,6 +25,7 @@ export const getFeed = async (req: Request, res: Response) => {
       limit,
       region,
       segment,
+      category,
     });
 
     // Add response time metric

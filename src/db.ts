@@ -10,7 +10,7 @@ export async function initSchema() {
       t.string("title").notNullable();
       t.bigInteger("ts").notNullable();
       t.integer("popularity").notNullable().defaultTo(0);
-      t.string("category").notNullable();
+      t.string("segment").notNullable();
       t.string("region").notNullable();
     });
   }
@@ -30,7 +30,7 @@ export async function initSchema() {
       t.float("personalized_score").notNullable();
       t.bigInteger("ts").notNullable();
       t.string("title").notNullable();
-      t.string("category").notNullable();
+      t.string("segment").notNullable();
       t.string("region").notNullable();
       t.integer("popularity").notNullable().defaultTo(0);
       t.primary(["user_id", "item_id"]);

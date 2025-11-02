@@ -14,31 +14,35 @@ export class FeedService {
       cursor?: string;
       limit?: number;
       region?: string;
-      segment?: "personalized" | "global";
+      segment?: string;
+      category?: string;
     }
   ) {
     console.log("check1");
     console.log("userId : ", userId);
-    const { cursor, limit = 20, region, segment = "personalized" } = options;
+    console.log("options : ", options);
+    const { cursor, limit = 20, region, segment, category = "personalized" } = options;
 
     // Decode cursor (format: "timestamp|id" or "score|id")
     const [cursorValue, lastId] = cursor ? cursor.split("|") : [null, null];
 
     // Cache key includes all parameters that affect the results
-    const cacheKey = `feed:${userId}:${limit}:${region || "*"}:${segment}:${cursor || "init"}`;
+    const cacheKey = `feed:${userId}:${limit}:${region || "*"}:${category}_${segment}:${
+      cursor || "init"
+    }`;
     console.log("check2");
     return withCache(cacheKey, 300, async () => {
       console.log("cache miss, computing feed from db");
       // 5 min cache with jitter
       // const hasView = await knex.schema.hasTable("user_feed_view");
       console.log("segment : ", segment);
-      if (segment === "personalized") {
+      if (category === "personalized") {
         // Query materialized view with cursor-based pagination
         const query = knex("user_feed_view")
           .select(
             "item_id as id",
             "title",
-            "category",
+            "segment",
             "region",
             "personalized_score as score",
             "ts"
@@ -50,6 +54,9 @@ export class FeedService {
 
         if (region) {
           query.where("region", region);
+        }
+        if (segment) {
+          query.where("segment", segment);
         }
         console.log("check4");
         if (cursorValue && lastId) {
@@ -63,7 +70,7 @@ export class FeedService {
             });
           });
         }
-        // console.log("final query : ", query);
+        console.log("final query : ", query);
         const rows = await query;
         console.log("rows : ", rows);
         const hasMore = rows.length > limit;
@@ -77,9 +84,9 @@ export class FeedService {
         return { items, nextCursor };
       }
 
-      // Fallback or explicit global feed with timestamp-based cursor
+      // Fallback or explicit global feed for the segment with timestamp-based cursor
       const query = knex("feed_items")
-        .select("id", "title", "category", "region", "popularity", "ts")
+        .select("id", "title", "segment", "region", "popularity", "ts")
         .orderBy("ts", "desc")
         .orderBy("id", "desc") // Secondary sort for stable pagination
         .limit(limit + 1);
