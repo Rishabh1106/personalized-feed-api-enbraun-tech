@@ -26,7 +26,7 @@ export default function () {
   const u = users[Math.floor(Math.random() * users.length)];
   const r = regions[Math.floor(Math.random() * regions.length)];
   const s = segments[Math.floor(Math.random() * segments.length)];
-  const url = `http://127.0.0.1:3000/v1/feed?userid=${u}&region=${r}&segment=${s}&limit=20`;
+  const url = `http://127.0.0.1:3000/v1/feed?userid=${u}&region=${r}&segment=${s}&limit10`;
   const res = http.get(url);
   check(res, { "status 200": r => r.status === 200 });
   sleep(0.02);
