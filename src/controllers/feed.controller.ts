@@ -7,7 +7,7 @@ const service = new FeedService();
 export const getFeed = async (req: Request, res: Response) => {
   const start = Date.now(); // For response time tracking
   console.log("req query : ", req.query);
-  const userId = String(req.query.userid);
+  const userId = Number(req.query.userid);
   const cursor = req.query.cursor ? String(req.query.cursor) : undefined;
   const limit = Math.min(Number(req.query.limit) || 20, 100); // Cap at 100
   const region = req.query.region ? String(req.query.region) : undefined;

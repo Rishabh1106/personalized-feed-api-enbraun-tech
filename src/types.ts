@@ -5,11 +5,10 @@ export type FeedItem = {
   popularity: number; // integer
   category: string;
   region: string;
-  meta: any;
 };
 
 export type User = {
-  id: string;
+  id: number;
   region: string;
   prefWeights: Record<string, number>;
 };

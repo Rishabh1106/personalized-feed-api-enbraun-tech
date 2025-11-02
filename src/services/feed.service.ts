@@ -9,7 +9,7 @@ export class FeedService {
    * If a `user_feed_view` exists, prefer it (pre-computed scores).
    */
   async getFeed(
-    userId: string,
+    userId: number,
     options: {
       cursor?: string;
       limit?: number;
@@ -28,9 +28,10 @@ export class FeedService {
     const cacheKey = `feed:${userId}:${limit}:${region || "*"}:${segment}:${cursor || "init"}`;
     console.log("check2");
     return withCache(cacheKey, 300, async () => {
+      console.log("cache miss, computing feed from db");
       // 5 min cache with jitter
       // const hasView = await knex.schema.hasTable("user_feed_view");
-
+      console.log("segment : ", segment);
       if (segment === "personalized") {
         // Query materialized view with cursor-based pagination
         const query = knex("user_feed_view")

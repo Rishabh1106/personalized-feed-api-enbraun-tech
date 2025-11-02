@@ -12,7 +12,6 @@ export async function initSchema() {
       t.integer("popularity").notNullable().defaultTo(0);
       t.string("category").notNullable();
       t.string("region").notNullable();
-      t.jsonb("meta");
     });
   }
 
@@ -34,7 +33,6 @@ export async function initSchema() {
       t.string("category").notNullable();
       t.string("region").notNullable();
       t.integer("popularity").notNullable().defaultTo(0);
-      t.jsonb("meta");
       t.primary(["user_id", "item_id"]);
     });
   }

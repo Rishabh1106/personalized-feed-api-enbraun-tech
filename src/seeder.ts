@@ -27,37 +27,38 @@ async function seed() {
     "general",
   ];
 
-  const total = 5000;
+  const total = 5;
+  // const total = 5000;
   console.log("Seeding", total, "posts...");
   const now = nowMs();
-  const batchSize = 500;
+  const batchSize = 5;
+  // const batchSize = 500;
   for (let i = 0; i < total; i += batchSize) {
     const batch: any[] = [];
     for (let j = i; j < Math.min(i + batchSize, total); j++) {
-      const id = uuidv4();
+      // const id = uuidv4();
       const region = pick(regions);
       const category = pick(categories);
       const ts = now - randInt(0, 60 * 24 * 60 * 60 * 1000);
       const popularity = randInt(0, 10000);
       const title = `${category.toUpperCase()} Post ${j}`;
-      const meta = JSON.stringify({ tags: [category, region], source: "seeder" });
-      batch.push({ id, title, ts, popularity, category, region, meta });
+      batch.push({ title, ts, popularity, category, region });
     }
     await knex("feed_items").insert(batch);
   }
 
   console.log("Seeding users...");
   const users: User[] = [
-    { id: "u1", region: "us", prefWeights: { sports: 0.6, technology: 0.2, current_affairs: 0.2 } },
-    { id: "u2", region: "eu", prefWeights: { sports: 0.1, technology: 0.7, current_affairs: 0.2 } },
-    { id: "u3", region: "in", prefWeights: { sports: 0.2, technology: 0.1, current_affairs: 0.7 } },
+    { id: 1, region: "us", prefWeights: { sports: 0.6, technology: 0.2, current_affairs: 0.2 } },
+    { id: 2, region: "eu", prefWeights: { sports: 0.1, technology: 0.7, current_affairs: 0.2 } },
+    { id: 3, region: "in", prefWeights: { sports: 0.2, technology: 0.1, current_affairs: 0.7 } },
     {
-      id: "u4",
+      id: 4,
       region: "asia",
       prefWeights: { sports: 0.4, technology: 0.4, current_affairs: 0.2 },
     },
     {
-      id: "u5",
+      id: 5,
       region: "latam",
       prefWeights: { sports: 0.7, technology: 0.1, current_affairs: 0.2 },
     },
@@ -65,7 +66,7 @@ async function seed() {
 
   for (const u of users) {
     await knex("users")
-      .insert({ id: u.id, region: u.region, pref_weights: JSON.stringify(u.prefWeights) })
+      .insert({ id: u.id, region: u.region, preferences: JSON.stringify(u.prefWeights) })
       .onConflict("id")
       .merge();
   }
@@ -93,7 +94,6 @@ async function seed() {
         category: it.category,
         region: it.region,
         popularity: it.popularity,
-        meta: it.meta,
       });
       if (rows.length >= 1000) {
         await knex("user_feed_view").insert(rows).onConflict(["user_id", "item_id"]).merge();
@@ -101,7 +101,7 @@ async function seed() {
       }
     }
     if (rows.length)
-      await knex("user_feed_view").insert(rows).onConflict(["userId", "itemId"]).merge();
+      await knex("user_feed_view").insert(rows).onConflict(["user_id", "item_id"]).merge();
   }
 
   console.log("Seed complete.");
