@@ -8,8 +8,8 @@ export let options = {
       rate: 1500, // 1500 RPS
       timeUnit: "1s", // 1500 iterations per second
       duration: "30s", // test duration
-      preAllocatedVUs: 100, // initial pool
-      maxVUs: 200, // max pool size
+      preAllocatedVUs: 2, // initial pool
+      maxVUs: 10, // max pool size
     },
   },
   thresholds: {
@@ -18,9 +18,9 @@ export let options = {
   },
 };
 
-const users = ["u1", "u2", "u3", "u4", "u5"];
+const users = ["1", "2", "3", "4", "5"];
 const regions = ["us", "eu", "in", "asia", "latam"];
-const segments = ["personalized", "hot", "popular", "sports", "current_affairs"];
+const segments = ["hot", "popular", "sports", "current_affairs", "top10"];
 
 export default function () {
   const u = users[Math.floor(Math.random() * users.length)];

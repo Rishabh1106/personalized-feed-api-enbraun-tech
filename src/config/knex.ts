@@ -8,13 +8,13 @@ dotenv.config();
 const knexConfig: Knex.Config = {
   client: "pg",
   connection: {
-    host: process.env.PGHOST || "127.0.0.1",
-    port: Number(process.env.PGPORT || 5432),
-    user: process.env.PGUSER || "postgres",
-    password: process.env.PGPASSWORD || "postgres",
-    database: process.env.PGDATABASE || "feeddb",
+    host: process.env.PG_HOST || "127.0.0.1",
+    port: Number(process.env.POSTGRES_PORT || 5432),
+    user: process.env.POSTGRES_USER || "postgres",
+    password: process.env.POSTGRES_PASSWORD || "postgres",
+    database: process.env.POSTGRES_DB || "feeddb",
   },
-  pool: { min: 2, max: 10 },
+  pool: { min: 10, max: 50 },
 };
 
 // Export a single configured knex instance for the app to import.

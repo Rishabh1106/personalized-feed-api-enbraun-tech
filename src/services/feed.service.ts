@@ -126,6 +126,7 @@ export class FeedService {
           .select("id", "title", "segment", "region", "popularity", "ts")
           .modify(qb => {
             if (region) qb.where("region", region);
+            if (segment) qb.where("segment", segment);
           })
           .orderBy("ts", "desc")
           .orderBy("id", "desc")
@@ -149,7 +150,14 @@ export class FeedService {
         const hasMore = rows.length > limit;
         const items = rows.slice(0, limit);
         const nextCursor = hasMore
-          ? `${items[items.length - 1].ts.toISOString()}|${items[items.length - 1].id}`
+          ? (() => {
+              const tsValue = items[items.length - 1]?.ts;
+              if (typeof tsValue === "number" && !isNaN(tsValue)) {
+                return `${new Date(tsValue).toISOString()}|${items[items.length - 1].id}`;
+              } else {
+                return null;
+              }
+            })()
           : null;
 
         console.log(`[FeedService] Global feed fetched`, {
