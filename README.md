@@ -29,7 +29,7 @@ PORT=3000
 2. **Open a shell in the app container:**
 
    ```bash
-   docker-compose exec app sh
+   docker-compose exec -it <app-container-id> bash
    ```
 
 3. **Install dependencies (if not already):**
@@ -71,6 +71,7 @@ PORT=3000
    ```bash
    npm run demo
    ```
+### Demos can be found in the directory `demos/`
 
 ## API Usage
 
@@ -152,3 +153,38 @@ curl "http://localhost:3000/v1/feed?userid=1&category=global&region=us&segment=c
 # API Flow
 
 ![API Flow](./public/feed-api-flow.png)
+
+Feed API Flow (with Redis Caching & Stampede Protection)
+
+1. **Client Request**:
+The client sends a GET /v1/feed request with pagination and filter parameters.
+
+2. **Parameter Validation**:
+The API layer validates and parses query parameters before calling the FeedService.
+
+3. **Cache Lookup**:
+The FeedService first checks Redis for a cached version of the requested feed page.
+
+4. **Cache Hit**:
+If cache exists → return the cached feed response immediately.
+Response time is minimal (no DB call needed).
+
+5. **Cache Miss**:
+If cache doesn’t exist → FeedService tries to acquire a Redis lock for that feed key.
+This prevents multiple requests from hitting the DB simultaneously (avoiding a “thundering herd”).
+
+6. **Lock Acquired (Leader Request)**:
+The leader request queries Postgres for feed items.
+Once data is fetched, it is stored in Redis with a TTL (time-to-live) for caching.
+The response is sent back to the client.
+
+7. **Lock Not Acquired (Follower Requests)**:
+Other concurrent requests (followers) poll Redis for up to 2 seconds waiting for the cache to appear.
+If the cache becomes available → they return cached feed data.
+
+8. **Timeout Fallback**:
+If cache doesn’t appear within the wait window, the follower request queries Postgres directly as a fallback.
+Feed data is returned to the client (but not cached again to avoid duplication).
+
+9. **Subsequent Requests**:
+All later requests within the cache TTL window are served directly from Redis.

@@ -2,7 +2,6 @@ import express from "express";
 import { initSchema } from "./db";
 import feedRouter from "./routes/feed.routes";
 
-// Minimal API bootstrap. Mounts the feed router at /v1.
 const app = express();
 app.use(express.json());
 

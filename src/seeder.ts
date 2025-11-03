@@ -1,6 +1,5 @@
-import { v4 as uuidv4 } from "uuid";
 import knex, { initSchema } from "./db";
-import { User, FeedItem } from "./types";
+import { User } from "./types";
 
 function randInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
