@@ -133,9 +133,10 @@ export class FeedService {
           .limit(limit + 1);
 
         if (cursorValue && lastId) {
+          const cursorTs = Number(cursorValue);
           query.where(function () {
-            this.where("ts", "<", new Date(cursorValue)).orWhere(function () {
-              this.where("ts", "=", new Date(cursorValue)).andWhere("id", "<", lastId);
+            this.where("ts", "<", cursorTs).orWhere(function () {
+              this.where("ts", "=", cursorTs).andWhere("id", "<", lastId);
             });
           });
         }
@@ -151,12 +152,16 @@ export class FeedService {
         const items = rows.slice(0, limit);
         const nextCursor = hasMore
           ? (() => {
-              const tsValue = items[items.length - 1]?.ts;
-              if (typeof tsValue === "number" && !isNaN(tsValue)) {
-                return `${new Date(tsValue).toISOString()}|${items[items.length - 1].id}`;
-              } else {
+              const lastItem = items[items.length - 1];
+              const tsRaw = lastItem?.ts;
+              // Convert ts to number safely
+              const tsNum = Number(tsRaw);
+              // Validate timestamp
+              if (!tsNum || Number.isNaN(tsNum)) {
+                console.error("[FeedService] Invalid ts for cursor:", tsRaw);
                 return null;
               }
+              return `${tsNum}|${lastItem.id}`;
             })()
           : null;
 
